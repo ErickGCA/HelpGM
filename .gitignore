@@ -1,33 +1,41 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# Arquivos de ambiente (CRÍTICO - nunca commitar!)
+.env
+.env.local
+.env.production
+.env.staging
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Arquivos de configuração sensíveis
+application-prod.properties
+application-staging.properties
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# Logs
+*.log
+logs/
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# IDEs
+.idea/
+.vscode/
 *.iml
 *.ipr
+*.iws
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+database-setup.sql
 
-### VS Code ###
-.vscode/
+# Maven
+target/
+.mvn/
+mvnw
+mvnw.cmd
+compose.yaml
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de backup
+*.bak
+*.backup

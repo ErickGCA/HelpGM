@@ -1,4 +1,4 @@
-package com.help.gym.service;
+package com.help.gym.security.service;
 
 import com.help.gym.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
