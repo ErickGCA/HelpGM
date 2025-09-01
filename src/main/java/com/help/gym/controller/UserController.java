@@ -24,8 +24,6 @@ public class UserController {
         
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        
-        // Não retornar a senha por segurança
         user.setPassword(null);
         
         return ResponseEntity.ok(user);
