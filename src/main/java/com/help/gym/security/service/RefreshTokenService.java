@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,7 +36,20 @@ public class RefreshTokenService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         
-        refreshTokenRepository.deleteByUser(user);
+        try {
+            refreshTokenRepository.deleteByUser(user);
+            refreshTokenRepository.flush();
+        } catch (Exception e) {
+            System.out.println("Erro ao deletar tokens antigos: " + e.getMessage());
+            List<RefreshToken> existingTokens = refreshTokenRepository.findAll().stream()
+                    .filter(token -> token.getUser().getId().equals(user.getId()))
+                    .toList();
+            
+            for (RefreshToken token : existingTokens) {
+                refreshTokenRepository.delete(token);
+            }
+            refreshTokenRepository.flush();
+        }
         
         RefreshToken refreshToken = RefreshToken.builder()
                 .user(user)

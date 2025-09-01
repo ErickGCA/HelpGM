@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,20 +40,45 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
+            System.out.println("Tentativa de login para usuário: " + loginRequest.getUsername());
+            
+            // Verificar se o usuário existe
+            User user = userRepository.findByUsername(loginRequest.getUsername())
+                    .orElse(null);
+            
+            if (user == null) {
+                System.out.println("Usuário não encontrado: " + loginRequest.getUsername());
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Usuário não encontrado");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            
+            System.out.println("Usuário encontrado, verificando senha...");
+            
+            // Tentar autenticar
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            User user = (User) authentication.getPrincipal();
+            User authenticatedUser = (User) authentication.getPrincipal();
 
-            String jwt = jwtService.generateToken(user);
-            String refreshToken = refreshTokenService.createRefreshToken(user.getUsername()).getToken();
+            System.out.println("Autenticação bem-sucedida para: " + authenticatedUser.getUsername());
+
+            String jwt = jwtService.generateToken(authenticatedUser);
+            String refreshToken = refreshTokenService.createRefreshToken(authenticatedUser.getUsername()).getToken();
 
             return ResponseEntity.ok(new JwtResponse(jwt, refreshToken));
-        } catch (Exception e) {
+        } catch (BadCredentialsException e) {
+            System.out.println("Credenciais inválidas para usuário: " + loginRequest.getUsername());
             Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Credenciais inválidas");
+            errorResponse.put("error", "Senha incorreta");
             return ResponseEntity.badRequest().body(errorResponse);
+        } catch (Exception e) {
+            System.out.println("Erro durante login: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Erro interno do servidor: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(errorResponse);
         }
     }
 
