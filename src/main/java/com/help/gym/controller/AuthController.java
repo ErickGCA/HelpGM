@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -37,49 +38,75 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        User user = (User) authentication.getPrincipal();
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            User user = (User) authentication.getPrincipal();
 
-        String jwt = jwtService.generateToken(user);
-        String refreshToken = refreshTokenService.createRefreshToken(user.getUsername()).getToken();
+            String jwt = jwtService.generateToken(user);
+            String refreshToken = refreshTokenService.createRefreshToken(user.getUsername()).getToken();
 
-        return ResponseEntity.ok(new JwtResponse(jwt, refreshToken));
+            return ResponseEntity.ok(new JwtResponse(jwt, refreshToken));
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Credenciais inválidas");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
-        if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Nome de usuário já está em uso!"));
-        }
-        if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
-             return ResponseEntity.badRequest().body(Map.of("error", "Email já está em uso!"));
-        }
+        try {
+            if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Nome de usuário já está em uso!");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            
+            if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Email já está em uso!");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
 
-        User user = User.builder()
-                .username(registerRequest.getUsername())
-                .email(registerRequest.getEmail())
-                .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .role(Role.USER)
-                .build();
+            User user = User.builder()
+                    .username(registerRequest.getUsername())
+                    .email(registerRequest.getEmail())
+                    .password(passwordEncoder.encode(registerRequest.getPassword()))
+                    .role(Role.USER)
+                    .build();
 
-        userRepository.save(user);
-        return ResponseEntity.ok("Usuário registrado com sucesso!");
+            userRepository.save(user);
+            
+            Map<String, String> successResponse = new HashMap<>();
+            successResponse.put("message", "Usuário registrado com sucesso!");
+            return ResponseEntity.ok(successResponse);
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Erro interno do servidor");
+            return ResponseEntity.internalServerError().body(errorResponse);
+        }
     }
     
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
-        String requestRefreshToken = request.getRefreshToken();
+        try {
+            String requestRefreshToken = request.getRefreshToken();
 
-        return refreshTokenService.findByToken(requestRefreshToken)
-                .map(refreshTokenService::verifyExpiration)
-                .map(refreshToken -> {
-                    User user = refreshToken.getUser();
-                    String token = jwtService.generateToken(user);
-                    return ResponseEntity.ok(new JwtResponse(token, requestRefreshToken));
-                })
-                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken, "Refresh token não encontrado no banco de dados."));
+            return refreshTokenService.findByToken(requestRefreshToken)
+                    .map(refreshTokenService::verifyExpiration)
+                    .map(refreshToken -> {
+                        User user = refreshToken.getUser();
+                        String token = jwtService.generateToken(user);
+                        return ResponseEntity.ok(new JwtResponse(token, requestRefreshToken));
+                    })
+                    .orElseThrow(() -> new TokenRefreshException(requestRefreshToken, "Refresh token não encontrado no banco de dados."));
+        } catch (TokenRefreshException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
 }

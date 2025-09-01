@@ -31,12 +31,21 @@ export const RegisterForm: React.FC = () => {
     setLoading(true);
 
     try {
-      await apiService.register(formData);
-      setSuccess('Conta criada com sucesso! Redirecionando para login...');
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 2000);
+      const response = await apiService.register(formData);
+      
+      if (response && typeof response === 'object' && 'message' in response) {
+        setSuccess(response.message);
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      } else {
+        setSuccess('Conta criada com sucesso! Redirecionando para login...');
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      }
     } catch (err: any) {
+      console.error('Erro no registro:', err);
       setError(err.message || 'Erro ao criar conta');
     } finally {
       setLoading(false);

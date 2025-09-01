@@ -29,11 +29,32 @@ class ApiService {
       const response = await fetch(url, config);
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        
+        try {
+          const errorData = await response.json();
+          if (errorData && typeof errorData === 'object' && 'error' in errorData) {
+            errorMessage = errorData.error;
+          }
+        } catch (parseError) {
+          try {
+            const textError = await response.text();
+            if (textError) {
+              errorMessage = textError;
+            }
+          } catch (textError) {
+          }
+        }
+        
+        throw new Error(errorMessage);
       }
 
-      return await response.json();
+      try {
+        return await response.json();
+      } catch (parseError) {
+        const textResponse = await response.text();
+        return { message: textResponse } as T;
+      }
     } catch (error) {
       console.error('API request failed:', error);
       throw error;
