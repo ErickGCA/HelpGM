@@ -23,7 +23,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar se há um token salvo e validar
     const token = localStorage.getItem('accessToken');
     if (token) {
       validateToken();
@@ -50,11 +49,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(true);
       const response = await apiService.login(credentials);
       
-      // Salvar tokens
       localStorage.setItem('accessToken', response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
       
-      // Buscar perfil do usuário
       const userProfile = await apiService.getProfile();
       setUser(userProfile);
     } catch (error) {

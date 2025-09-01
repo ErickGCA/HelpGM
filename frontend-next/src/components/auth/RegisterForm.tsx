@@ -5,6 +5,7 @@ import { apiService } from '@/services/api';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { RegisterRequest } from '@/types/auth';
+import { AuthFormWrapper } from './AuthFormWrapper';
 
 export const RegisterForm: React.FC = () => {
   const [formData, setFormData] = useState<RegisterRequest>({
@@ -53,30 +54,19 @@ export const RegisterForm: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Criar Conta HelpGM
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Registre-se para começar
-          </p>
-        </div>
-        
+      <AuthFormWrapper title="Criar Conta HelpGM" subtitle="Registre-se para começar">
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
               {error}
             </div>
           )}
-          
           {success && (
             <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
               {success}
             </div>
           )}
-          
+                    
           <div className="space-y-4">
             <Input
               label="Nome de usuário"
@@ -131,7 +121,6 @@ export const RegisterForm: React.FC = () => {
             </a>
           </div>
         </form>
-      </div>
-    </div>
+      </AuthFormWrapper>
   );
 };

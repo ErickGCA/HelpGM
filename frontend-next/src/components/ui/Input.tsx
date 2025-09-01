@@ -29,7 +29,7 @@ export const Input: React.FC<InputProps> = ({
       <input
         id={finalId}
         className={`
-          block w-full rounded-md border-gray-300 shadow-sm
+          block w-full rounded-md border-gray-300 shadow-sm shadow-sm text-gray-900
           focus:border-blue-500 focus:ring-blue-500 sm:text-sm
           ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}
           ${className}
