@@ -91,7 +91,7 @@ export default function DashboardPage() {
             <p className="text-gray-600 mb-4">
               Adicione, edite e gerencie os alunos da academia
             </p>
-            <Button className="w-full">
+            <Button className="w-full" onClick={() => router.push('/alunos')}>
               Ver Alunos
             </Button>
           </div>
@@ -103,7 +103,7 @@ export default function DashboardPage() {
             <p className="text-gray-600 mb-4">
               Configure planos e controle mensalidades
             </p>
-            <Button className="w-full">
+            <Button className="w-full" onClick={() => router.push('/planos')}>
               Gerenciar Planos
             </Button>
           </div>
@@ -115,7 +115,7 @@ export default function DashboardPage() {
             <p className="text-gray-600 mb-4">
               Visualize relatórios e estatísticas da academia
             </p>
-            <Button className="w-full">
+            <Button className="w-full" onClick={() => router.push('/relatorios')}>
               Ver Relatórios
             </Button>
           </div>
