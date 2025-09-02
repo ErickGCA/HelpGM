@@ -1,9 +1,9 @@
 package com.help.gym.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,76 +11,65 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.help.gym.model.Exercise;
-import com.help.gym.repository.ExerciseRepository;
-import jakarta.validation.Valid;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.help.gym.dto.ExerciseRequest;
+import com.help.gym.dto.ExerciseResponse;
+import com.help.gym.dto.MessageResponse;
+import com.help.gym.service.ExerciseService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
 import java.net.URI;
 
 @RestController
 @RequestMapping("/api/exercises")
+@RequiredArgsConstructor
 public class ExerciseController {
     
-    private final ExerciseRepository exerciseRepository;
-
-
-    public ExerciseController(ExerciseRepository exerciseRepository) {
-        this.exerciseRepository = exerciseRepository;
-    }
+    private final ExerciseService exerciseService;
 
     @GetMapping
-    public List<Exercise> getAllExercises() {
-        return exerciseRepository.findAll();
+    public ResponseEntity<List<ExerciseResponse>> getAllExercises() {
+        List<ExerciseResponse> exercises = exerciseService.getAllExercises();
+        return ResponseEntity.ok(exercises);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Exercise> getExerciseById(@PathVariable Long id) {
-        Optional<Exercise> exercise = exerciseRepository.findById(id);
-        return exercise.map(ResponseEntity::ok)
-                       .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ExerciseResponse> getExerciseById(@PathVariable Long id) {
+        return exerciseService.getExerciseById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Exercise> createExercise(@Valid @RequestBody Exercise exercise) {
-        Exercise savedExercise = exerciseRepository.save(exercise);
+    public ResponseEntity<ExerciseResponse> createExercise(@Valid @RequestBody ExerciseRequest request) {
+        ExerciseResponse savedExercise = exerciseService.createExercise(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-        .path("/{id}")
-        .buildAndExpand(savedExercise.getId())
-        .toUri();
+                .path("/{id}")
+                .buildAndExpand(savedExercise.getId())
+                .toUri();
         return ResponseEntity.created(location).body(savedExercise);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Exercise> updateExercise(@PathVariable Long id, @Valid @RequestBody Exercise exercise) {
-        Optional<Exercise> existingExercise = exerciseRepository.findById(id);
-        if (existingExercise.isPresent()) {
-            Exercise updatedExercise = existingExercise.get();
-            updatedExercise.setName(exercise.getName());
-            updatedExercise.setDescription(exercise.getDescription());
-            updatedExercise.setExerciseType(exercise.getExerciseType());
-            updatedExercise.setMuscleGroup(exercise.getMuscleGroup());
-            updatedExercise.setDifficulty(exercise.getDifficulty());
-            updatedExercise.setEquipment(exercise.getEquipment());
-            updatedExercise.setInstructions(exercise.getInstructions());
-            updatedExercise.setTips(exercise.getTips());
-            updatedExercise.setVariations(exercise.getVariations());
-
-            Exercise savedExercise = exerciseRepository.save(updatedExercise);
-            return ResponseEntity.ok(savedExercise);
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<ExerciseResponse> updateExercise(@PathVariable Long id, @Valid @RequestBody ExerciseRequest request) {
+        return exerciseService.updateExercise(id, request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-        public ResponseEntity<?> deleteExercise(@PathVariable Long id) {
-        return exerciseRepository.findById(id)
-        .map(exercise -> {
-            exerciseRepository.delete(exercise);
-            return ResponseEntity.ok("Exercício deletado com sucesso");
-        })
-        .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<MessageResponse> deleteExercise(@PathVariable Long id) {
+        boolean deleted = exerciseService.deleteExercise(id);
+        if (deleted) {
+            MessageResponse response = MessageResponse.builder()
+                    .message("Exercício deletado com sucesso")
+                    .timestamp(java.time.LocalDateTime.now().toString())
+                    .build();
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.notFound().build();
     }
 }
