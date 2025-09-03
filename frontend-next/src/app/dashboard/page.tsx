@@ -90,7 +90,7 @@ export default function DashboardPage() {
             <p className="text-gray-600 mb-4">
               Adicione, edite e gerencie os exercícios da academia
             </p>
-            <Button className="w-full" onClick={() => router.push('/alunos')}>
+            <Button className="w-full" onClick={() => router.push('/exercicioslist')}>
               Ver Alunos
             </Button>
           </div>
