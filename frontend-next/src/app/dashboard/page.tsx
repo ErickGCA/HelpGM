@@ -29,7 +29,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
@@ -86,10 +85,10 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Gerenciar Alunos
+                Catalogo de Exercícios
             </h3>
             <p className="text-gray-600 mb-4">
-              Adicione, edite e gerencie os alunos da academia
+              Adicione, edite e gerencie os exercícios da academia
             </p>
             <Button className="w-full" onClick={() => router.push('/alunos')}>
               Ver Alunos
@@ -98,13 +97,13 @@ export default function DashboardPage() {
 
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Planos e Mensalidades
+              Ficha Viva
             </h3>
             <p className="text-gray-600 mb-4">
-              Configure planos e controle mensalidades
+              Configure a sua ficha viva
             </p>
-            <Button className="w-full" onClick={() => router.push('/planos')}>
-              Gerenciar Planos
+            <Button className="w-full" onClick={() => router.push('/fichaviva')}>
+              Gerenciar Ficha Viva
             </Button>
           </div>
 

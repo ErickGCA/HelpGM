@@ -9,6 +9,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+README-FICHA-VIVA.md
 
 # testing
 /coverage
