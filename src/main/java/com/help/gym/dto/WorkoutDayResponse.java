@@ -16,11 +16,13 @@ public class WorkoutDayResponse {
     private String name;
     private String description;
     private Integer dayOrder;
+    private Long workoutPlanId;
     
     public WorkoutDayResponse(WorkoutDay workoutDay) {
         this.id = workoutDay.getId();
         this.name = workoutDay.getName();
         this.description = workoutDay.getDescription();
         this.dayOrder = workoutDay.getDayOrder();
+        this.workoutPlanId = workoutDay.getWorkoutPlan().getId();
     }
 }

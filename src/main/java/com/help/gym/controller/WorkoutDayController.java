@@ -42,6 +42,12 @@ public class WorkoutDayController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/plan/{workoutPlanId}")
+    public ResponseEntity<List<WorkoutDayResponse>> getWorkoutDaysByPlanId(@PathVariable Long workoutPlanId) {
+        List<WorkoutDayResponse> workoutDays = workoutDayService.findByWorkoutPlanId(workoutPlanId);
+        return ResponseEntity.ok(workoutDays);
+    }
+
     @PostMapping
     public ResponseEntity<WorkoutDayResponse> createWorkoutDay(@Valid @RequestBody WorkoutDayRequest request) {
         WorkoutDayResponse savedWorkoutDay = workoutDayService.createWorkoutDay(request);

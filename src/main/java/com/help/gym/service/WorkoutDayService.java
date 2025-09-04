@@ -5,7 +5,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import com.help.gym.repository.WorkoutDayRepository;
+import com.help.gym.repository.WorkoutPlanRepository;
 import com.help.gym.model.WorkoutDay;
+import com.help.gym.model.WorkoutPlan;
 import com.help.gym.dto.WorkoutDayRequest;
 import com.help.gym.dto.WorkoutDayResponse;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 public class WorkoutDayService {
     
     private final WorkoutDayRepository workoutDayRepository;
+    private final WorkoutPlanRepository workoutPlanRepository;
 
     public List<WorkoutDayResponse> findAll() {
         return workoutDayRepository.findAll()
@@ -30,9 +33,21 @@ public class WorkoutDayService {
         return workoutDayRepository.findById(id)
                 .map(this::mapToResponse);
     }
+
+    public List<WorkoutDayResponse> findByWorkoutPlanId(Long workoutPlanId) {
+        return workoutDayRepository.findByWorkoutPlanId(workoutPlanId)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
     
     public WorkoutDayResponse createWorkoutDay(WorkoutDayRequest request) {
+        WorkoutPlan workoutPlan = workoutPlanRepository.findById(request.getWorkoutPlanId())
+                .orElseThrow(() -> new RuntimeException("WorkoutPlan not found with id: " + request.getWorkoutPlanId()));
+
         WorkoutDay workoutDay = mapToEntity(request);
+        workoutDay.setWorkoutPlan(workoutPlan);
+        
         WorkoutDay savedWorkoutDay = workoutDayRepository.save(workoutDay);
         return mapToResponse(savedWorkoutDay);
     }
@@ -52,6 +67,7 @@ public class WorkoutDayService {
                 .name(workoutDay.getName())
                 .description(workoutDay.getDescription())
                 .dayOrder(workoutDay.getDayOrder())
+                .workoutPlanId(workoutDay.getWorkoutPlan().getId())
                 .build();
     }
 
