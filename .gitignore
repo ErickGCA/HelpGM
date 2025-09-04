@@ -8,6 +8,8 @@
 application-prod.properties
 application-staging.properties
 
+roadmap-backend.md
+
 # Logs
 *.log
 logs/
