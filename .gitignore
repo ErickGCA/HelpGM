@@ -9,6 +9,10 @@ application-prod.properties
 application-staging.properties
 
 roadmap-backend.md
+swagger-readme.md
+swagger-refactoring-guide.md
+swagger-improvements-summary.md
+
 
 # Logs
 *.log

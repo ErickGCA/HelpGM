@@ -43,6 +43,7 @@ public class WorkoutPlanController {
     @PostMapping
     public ResponseEntity<WorkoutPlanResponse> createWorkoutPlan(@RequestBody WorkoutPlanRequest request) {
         // TODO: Obter userId do contexto de segurança (Spring Security)
+        
         Long userId = 1L; // Temporário - deve vir do Authentication/Principal TODO: Remover
         
         WorkoutPlanResponse savedPlan = workoutPlanService.createWorkoutPlan(request, userId);
